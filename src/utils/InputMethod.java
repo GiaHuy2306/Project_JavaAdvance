@@ -5,6 +5,7 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -57,14 +58,14 @@ public class InputMethod {
 
     // ===== PASSWORD =====
     public static String inputPassword(String message) {
-        try {
-            Terminal terminal = TerminalBuilder.builder().system(true).build();
-            LineReader reader = LineReaderBuilder.builder().terminal(terminal).build();
-
-            return reader.readLine(message, '*');
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
+        Console console = System.console();
+        if (console != null) {
+            char[] passwordChars = console.readPassword(message);
+            return passwordChars == null ? "" : new String(passwordChars);
+        } else {
+            System.out.print(message);
+            String input = sc.nextLine();
+            return input == null ? "" : input.trim();
         }
     }
 

@@ -41,7 +41,6 @@ public class UserService implements IUserService {
         if (!HashPassword.verify(password, user.getPassword())) {
             throw new Exception("Sai mật khẩu");
         }
-
         return user;
     }
 
