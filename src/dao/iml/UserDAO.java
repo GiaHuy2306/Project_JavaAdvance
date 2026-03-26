@@ -1,0 +1,95 @@
+package dao.iml;
+
+import dao.IUserDAO;
+import model.User;
+import model.enums.Role;
+import model.enums.UserStatus;
+import utils.DBConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserDAO implements IUserDAO {
+
+    @Override
+    public List<User> findAll() {
+        String sqlGetAll = "SELECT user_id, username, password, role, status FROM Users";
+        List<User> userList = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()){
+
+            ResultSet rs = stmt.executeQuery(sqlGetAll);
+
+            while(rs.next()){
+                userList.add(map(rs));
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return  userList;
+    }
+
+    @Override
+    public void insert(User user) throws SQLException {
+        String sql = "INSERT INTO Users (username, password, role, status) VALUES (?,?,?,?)";
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, user.getUsername());
+        ps.setString(2, user.getPassword());
+        ps.setString(3, user.getRole().name());
+        ps.setString(4, user.getStatus().name());
+        int count = ps.executeUpdate();
+
+        if (count > 0) {
+            System.out.println("Thêm user thành công");
+        }else {
+            System.out.println("Thêm user thất bại");
+        }
+
+    }
+
+    @Override
+    public User findByUserName(String username) throws SQLException {
+        String sqlFindUserName = "SELECT user_id, username, password, role, status FROM Users WHERE username = ? ";
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sqlFindUserName);
+        ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()){
+            return map(rs);
+        }
+        return null;
+    }
+
+    @Override
+    public void updateStatus(int user_id, UserStatus status) throws SQLException {
+        String sqlUpdateStatus = "UPDATE Users SET status = ? WHERE user_id = ?";
+
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus);
+        ps.setString(1, status.name());
+        ps.setInt(2, user_id);
+        int count = ps.executeUpdate();
+
+        if (count > 0) {
+            System.out.println("Cập nhật trạng thái user thành công");
+        }else {
+            System.out.println("Cập nhật trạng thái user thất bại");
+        }
+    }
+
+    private User map(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getInt("user_id"),
+                rs.getString("username"),
+                rs.getString("password"),
+                Role.fromString(rs.getString("role")),
+                UserStatus.fromString(rs.getString("status"))
+        );
+    }
+}
