@@ -1,6 +1,7 @@
 package model;
 
 import model.enums.FoodType;
+import model.enums.MenuStatus;
 
 public class MenuItem {
     private int id;
@@ -8,13 +9,15 @@ public class MenuItem {
     private double price;
     private FoodType foodType;
     private int stock;
+    private MenuStatus status;
 
-    public MenuItem(int id, String name, double price, FoodType foodType, int stock) {
+    public MenuItem(int id, String name, double price, FoodType foodType, int stock, MenuStatus status) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.foodType = foodType;
         this.stock = stock;
+        this.status = status;
     }
 
     public FoodType getFoodType() {
@@ -53,7 +56,12 @@ public class MenuItem {
         return stock;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void updateStock(int newStock){
+        this.stock = newStock;
+        this.status = (newStock > 0) ? MenuStatus.AVAILABLE : MenuStatus.OUT_OF_STOCK;
     }
+
+    public  MenuStatus getStatus() {return  status;}
+
+    public void setStatus(MenuStatus status) {this.status = status;}
 }

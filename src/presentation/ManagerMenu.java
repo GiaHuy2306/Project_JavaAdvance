@@ -5,6 +5,7 @@ import utils.InputMethod;
 
 public class ManagerMenu {
     private UserManagerUI userUI = new UserManagerUI();
+    private MenuItemUI menuUI = new MenuItemUI();
 //    private MenuItemUI menuUI = new MenuItemUI();
 //    private TableUI tableUI = new TableUI();
 
@@ -20,7 +21,7 @@ public class ManagerMenu {
 
             switch (choice) {
                 case 1 -> userUI.menu();
-//                case 2 -> menuUI.menu();
+                case 2 -> menuUI.menu();
 //                case 3 -> tableUI.menu();
                 case 0 -> { return; }
             }

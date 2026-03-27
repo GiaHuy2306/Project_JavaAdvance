@@ -17,6 +17,10 @@ public class UserService implements IUserService {
             throw new Exception("Username đã tồn tại");
         }
 
+        if (password.trim().isEmpty()){
+            throw new Exception("Mật khẩu không được trống");
+        }
+
         String hashed = HashPassword.hash(password);
 
         User user = new User(0,username, hashed, Role.CUSTOMER, UserStatus.ACTIVE);

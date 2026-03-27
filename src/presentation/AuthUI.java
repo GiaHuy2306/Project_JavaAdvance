@@ -18,18 +18,20 @@ public class AuthUI {
 
                 int choice = InputMethod.inputInt("Chọn: ");
 
-                String username = InputMethod.inputString("Nhập username: ");
-                String password = InputMethod.inputPassword("Nhập password: ");
-
                 switch (choice) {
+
                     case 1 -> {
                         System.out.println("\n===== Đăng ký =====");
+                        String username = InputMethod.inputString("Nhập username: ");
+                        String password = InputMethod.inputPassword("Nhập password: ");
                         userService.register(username, password);
                         System.out.println("Đăng ký thành công!");
                     }
 
                     case 2 -> {
                         System.out.println("\n===== Đăng nhập =====");
+                        String username = InputMethod.inputString("Nhập username: ");
+                        String password = InputMethod.inputPassword("Nhập password: ");
                         User user = userService.login(username, password);
                         System.out.println("Đăng nhập thành công!");
                         return user;
