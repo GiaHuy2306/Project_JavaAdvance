@@ -27,13 +27,8 @@ public class MenuItemDAO implements IMenuItemDAO {
         ps.setString(3, item.getFoodType().name());
         ps.setInt(4, item.getStock());
         ps.setString(5, item.getStatus().name());
-        int count = ps.executeUpdate();
 
-        if (count > 0) {
-            System.out.println("Thêm menu item thành công");
-        } else {
-            System.out.println("Thêm menu item thất bại");
-        }
+        ps.executeUpdate();
     }
 
     @Override
@@ -61,8 +56,6 @@ public class MenuItemDAO implements IMenuItemDAO {
 
         if (rs.next()){
             return map(rs);
-        }else {
-            System.out.println("Không tìm thấy menu item với id này");
         }
         return null;
     }
@@ -109,13 +102,7 @@ public class MenuItemDAO implements IMenuItemDAO {
 
         ps.setInt(1, id);
 
-        int count = ps.executeUpdate();
-
-        if (count > 0) {
-            System.out.println("Xóa menu item thành công");
-        }else {
-            System.out.println("Xóa menu thất bại");
-        }
+        ps.executeUpdate();
     }
 
     private MenuItem map(ResultSet rs) throws SQLException{

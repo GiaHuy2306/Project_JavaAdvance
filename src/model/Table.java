@@ -1,12 +1,14 @@
 package model;
 
+import model.enums.TableStatus;
+
 public class Table {
     private int id;
     private String name;
     private int capacity;
-    private boolean status;
+    private TableStatus status;
 
-    public Table(int id, String name, int capacity, boolean status) {
+    public Table(int id, String name, int capacity, TableStatus status) {
         this.id = id;
         this.name = name;
         this.capacity = capacity;
@@ -37,11 +39,11 @@ public class Table {
         this.name = name;
     }
 
-    public boolean isStatus() {
+    public TableStatus getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(TableStatus status) {
         this.status = status;
     }
 }

@@ -61,6 +61,7 @@ public class MenuItemUI {
         int stock = InputMethod.inputInt("Nhập số lượng menu item: ");
 
         service.addMenu(name, foodType, price, stock);
+        System.out.println("Thêm thành công");
     }
 
     private void showMenuItem() throws Exception{
