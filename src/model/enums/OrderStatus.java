@@ -1,7 +1,7 @@
 package model.enums;
 
 public enum OrderStatus {
-    PENDING, IN_PROGRESS, DONE, CANCEL;
+    PENDING, IN_PROGRESS, DONE, CANCEL, DELETE;
 
     public static OrderStatus fromString(String value){
         try {

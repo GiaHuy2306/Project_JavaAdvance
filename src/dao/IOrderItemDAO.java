@@ -1,20 +1,14 @@
 package dao;
 
-import dto.OrderItemView;
 import model.OrderItem;
-import model.enums.OrderItemStatus;
-
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface IOrderItemDAO {
-
-    void save(OrderItem item) throws Exception;
-
-    List<OrderItem> findByOrder(int orderId) throws Exception;
-
-    OrderItem findById(int id) throws Exception;
-
-    void updateStatus(int orderItemId, OrderItemStatus status) throws Exception;
+    OrderItem save(Connection conn, OrderItem item) throws Exception;
+    List<OrderItem> findByOrderId(Connection conn, int orderId);
+    OrderItem findById(Connection conn, int itemId);
+    boolean updateQuantity(Connection conn, int itemId, int quantity);
+    boolean updateStatus(Connection conn, int itemId, String status);
+    boolean delete(Connection conn, int itemId);
 }

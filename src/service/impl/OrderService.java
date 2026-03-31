@@ -4,8 +4,8 @@ import dao.IOrderDAO;
 import dao.impl.OrderDAO;
 import model.Order;
 import model.enums.OrderStatus;
-import service.IOrderService;
 import utils.DBConnection;
+import service.IOrderService;
 
 import java.sql.Connection;
 import java.util.List;
@@ -15,19 +15,31 @@ public class OrderService implements IOrderService {
     private final IOrderDAO orderDAO = new OrderDAO();
 
     @Override
-    public void createOrder(int customerId, int tableId) throws Exception {
+    public Order createOrder(int customerId, int tableId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
-            Order active = orderDAO.findActiveByTable(conn, tableId);
-            if (active != null) {
-                throw new Exception("Bàn này đã có order đang hoạt động!");
-            }
-
+            conn.setAutoCommit(false);
             Order order = new Order();
             order.setCustomerId(customerId);
             order.setTableId(tableId);
             order.setStatus(OrderStatus.PENDING);
+            order = orderDAO.save(conn, order);
+            conn.commit();
+            return order;
+        } catch (Exception e) {
+            throw new Exception("Tạo order thất bại: " + e.getMessage());
+        }
+    }
 
-            orderDAO.save(conn, order);
+    @Override
+    public Order getActiveByTableAndCustomer(int tableId, int customerId) throws Exception {
+        try (Connection conn = DBConnection.getConnection()) {
+            Order order = orderDAO.findActiveByTableAndCustomer(conn, tableId, customerId);
+            if (order != null && order.getStatus().equals(OrderStatus.DELETE)) {
+                return null;
+            }
+            return  order;
+        } catch (Exception e) {
+            throw new Exception("Của bạn không có bàn này");
         }
     }
 
@@ -35,30 +47,21 @@ public class OrderService implements IOrderService {
     public List<Order> getActiveOrdersByCustomer(int customerId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
             return orderDAO.findActiveByCustomer(conn, customerId);
-        }
-    }
-
-    @Override
-    public Order getActiveOrderByTableAndCustomer(int tableId, int customerId) throws Exception {
-        try (Connection conn = DBConnection.getConnection()) {
-            List<Order> list = orderDAO.findActiveByTableAndCustomer(conn, tableId, customerId);
-            return list.isEmpty() ? null : list.get(0);
+        } catch (Exception e) {
+            throw new Exception("Của bạn không có Order này");
         }
     }
 
     @Override
     public void checkoutByTable(int customerId, int tableId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
-            Order order = getActiveOrderByTableAndCustomer(tableId, customerId);
-            if (order == null) throw new Exception("Không tìm thấy order hợp lệ để thanh toán!");
+            conn.setAutoCommit(false);
+            Order order = getActiveByTableAndCustomer(tableId, customerId);
+            if(order == null) throw new Exception("Không tìm thấy order để thanh toán");
             orderDAO.checkout(conn, order.getId());
-        }
-    }
-
-    @Override
-    public void updateStatus(int orderId, OrderStatus status) throws Exception {
-        try (Connection conn = DBConnection.getConnection()) {
-            orderDAO.updateStatus(conn, orderId, status.name());
+            conn.commit();
+        } catch (Exception e) {
+            throw new Exception("Thanh toán thất bại: " + e.getMessage());
         }
     }
 }

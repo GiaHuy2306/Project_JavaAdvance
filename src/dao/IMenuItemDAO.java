@@ -17,4 +17,5 @@ public interface IMenuItemDAO {
     List<MenuItem> findByType(FoodType foodType) throws SQLException;
     void update(Connection conn, MenuItem item) throws SQLException;
     void delete(int id) throws SQLException;
+    boolean updateStock(Connection conn, int menuItemId, int i) throws SQLException;
 }

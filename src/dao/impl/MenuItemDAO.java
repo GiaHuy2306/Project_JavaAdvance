@@ -99,6 +99,17 @@ public class MenuItemDAO implements IMenuItemDAO {
     }
 
     @Override
+    public boolean updateStock(Connection conn, int menuItemId, int newStock) throws SQLException {
+        String sql = "UPDATE menu_items SET stock = ? WHERE menu_item_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newStock);
+            ps.setInt(2, menuItemId);
+            int updated = ps.executeUpdate();
+            return updated > 0;
+        }
+    }
+
+    @Override
     public void delete(int id) throws SQLException {
         String sqlDelete = "DELETE FROM menu WHERE menu_id = ?";
 

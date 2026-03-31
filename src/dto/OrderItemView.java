@@ -17,10 +17,27 @@ public class OrderItemView {
         this.status = status;
     }
 
-    public int getId() { return id; }
-    public int getOrderId() { return orderId; }
-    public String getName() { return name; }
-    public double getPriceAtOrder() { return priceAtOrder; }
-    public int getQuantity() { return quantity; }
-    public String getStatus() { return status; }
+    public int getId() {
+        return id;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPriceAtOrder() {
+        return priceAtOrder;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 }
