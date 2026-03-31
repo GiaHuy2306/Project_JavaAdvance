@@ -1,9 +1,9 @@
-package presentation;
+package presentation.manager;
 
 import model.MenuItem;
 import model.enums.FoodType;
 import service.IMenuItemService;
-import service.iml.MenuItemService;
+import service.impl.MenuItemService;
 import utils.InputMethod;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class MenuItemUI {
     }
 
     private void createMenuItem() throws Exception{
-        String name = InputMethod.inputString("Nhập tên menu item: ");
+        String name = InputMethod.inputString("Nhập tên món ăn: ");
 
         System.out.println("Chọn loại đồ ăn:");
         System.out.println("1. Food");
@@ -57,8 +57,8 @@ public class MenuItemUI {
         int choice = InputMethod.inputInt("Chọn: ");
         FoodType foodType = (choice == 1) ? FoodType.FOOD : FoodType.DRINK;
 
-        double price = InputMethod.inputDouble("Nhập giá menu item: ");
-        int stock = InputMethod.inputInt("Nhập số lượng menu item: ");
+        double price = InputMethod.inputDouble("Nhập giá món ăn: ");
+        int stock = InputMethod.inputInt("Nhập số lượng món ăn: ");
 
         service.addMenu(name, foodType, price, stock);
         System.out.println("Thêm thành công");
@@ -84,9 +84,9 @@ public class MenuItemUI {
     private void updateMenuItem() throws Exception{
         int id = InputMethod.inputInt("Nhập ID cần cập nhật: ");
         MenuItem item = service.findById(id);
-        if (item == null) throw new Exception("Không tìm thấy menu item");
+        if (item == null) System.out.println("Không tìm thấy món ăn");
 
-        String name = InputMethod.inputString("Nhập tên menu item mới (" + item.getName() + "): ");
+        String name = InputMethod.inputString("Nhập tên món ăn mới (" + item.getName() + "): ");
         System.out.println("Chọn loại đồ ăn mới: ");
         System.out.println("1. FOOD");
         System.out.println("2. DRINK");
@@ -123,7 +123,7 @@ public class MenuItemUI {
             List<MenuItem> list = service.findByType(type);
 
             if (list.isEmpty()){
-                System.out.println("Không có Menu Item tương ứng");
+                System.out.println("Không có món ăn tương ứng");
                 return;
             }
 
@@ -138,7 +138,7 @@ public class MenuItemUI {
                 );
             }
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tìm menu item " +e.getMessage());
+            throw new RuntimeException("Lỗi khi tìm món ăn " +e.getMessage());
         }
     }
 }

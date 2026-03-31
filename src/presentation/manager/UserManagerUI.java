@@ -1,9 +1,9 @@
-package presentation;
+package presentation.manager;
 
 import model.User;
 import model.enums.Role;
 import service.IUserService;
-import service.iml.UserService;
+import service.impl.UserService;
 import utils.InputMethod;
 
 import java.util.List;

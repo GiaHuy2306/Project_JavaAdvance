@@ -11,13 +11,21 @@ public class Order {
     private int customerId;
     private OrderStatus status;
     private LocalDateTime createAt;
+    private LocalDateTime checkOutAt;
+    private double totalAmount;
 
-    public Order(int id, int customerId, int tableId, OrderStatus status, LocalDateTime createAt) {
+    public Order() {
+    this.createAt = LocalDateTime.now();
+}
+
+    public Order(int id, int customerId, int tableId, OrderStatus status, LocalDateTime createAt, LocalDateTime checkOutAt, double totalAmount) {
         this.id = id;
         this.customerId = customerId;
         this.tableId = tableId;
         this.status = status;
         this.createAt = createAt;
+        this.checkOutAt = checkOutAt;
+        this.totalAmount = totalAmount;
     }
 
     public Order(int id, int customerId, int tableId, OrderStatus status) {
@@ -30,6 +38,7 @@ public class Order {
     public int getId() {
         return id;
     }
+
 
     public void setId(int id) {
         this.id = id;
@@ -65,5 +74,25 @@ public class Order {
 
     public void setTableId(int tableId) {
         this.tableId = tableId;
+    }
+
+    public LocalDateTime getCheckOutAt() {
+        return checkOutAt;
+    }
+
+    public void setCheckOutAt(LocalDateTime checkOutAt) {
+        this.checkOutAt = checkOutAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createAt;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

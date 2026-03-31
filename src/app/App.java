@@ -1,20 +1,40 @@
 package app;
 
 import model.User;
-import presentation.AuthUI;
-import presentation.ManagerMenu;
+import presentation.customer.CustomerUI;
+import presentation.manager.AuthUI;
+import presentation.manager.ManagerMenuUI;
 
 public class App {
     public void run () {
         AuthUI authUI = new AuthUI();
-        User user = authUI.start();
 
-        if (user == null) return;
+        while (true) {
+            User user = authUI.start();
 
-        switch (user.getRole()){
-            case MANAGER -> new ManagerMenu().menu(user);
-//            case CHEF -> new ChefManagerUI().menu();
-//            case CUSTOMER -> new CustomerManagerUI().menu();
+            if (user == null) {
+                System.out.println("Thoát hệ thống.");
+                break;  // chỉ break vòng lặp, không return
+            }
+
+            boolean backToMainMenu = false;
+
+            switch (user.getRole()) {
+                case MANAGER:
+                    backToMainMenu = new ManagerMenuUI().menu();
+                    break;
+                case CHEF:
+//                    backToMainMenu = new ChefUI().menu();
+                    break;
+                case CUSTOMER:
+                    backToMainMenu = new CustomerUI().menu(user.getId());
+                    break;
+            }
+
+            if (backToMainMenu) {
+                System.out.println("Quay về menu chính...");
+                continue;
+            }
         }
     }
 }

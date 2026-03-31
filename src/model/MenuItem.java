@@ -11,7 +11,7 @@ public class MenuItem {
     private int stock;
     private MenuStatus status;
 
-    public MenuItem(int id, String name, double price, FoodType foodType, int stock, MenuStatus status) {
+    public MenuItem(int id, String name, FoodType foodType, double price, int stock, MenuStatus status) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -64,4 +64,9 @@ public class MenuItem {
     public  MenuStatus getStatus() {return  status;}
 
     public void setStatus(MenuStatus status) {this.status = status;}
+
+    public void setStock(int i) {
+        this.stock = i;
+        this.status = (i > 0) ? MenuStatus.AVAILABLE : MenuStatus.OUT_OF_STOCK;
+    }
 }

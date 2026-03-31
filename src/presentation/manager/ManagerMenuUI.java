@@ -1,14 +1,14 @@
-package presentation;
+package presentation.manager;
 
 import model.User;
 import utils.InputMethod;
 
-public class ManagerMenu {
+public class ManagerMenuUI {
     private UserManagerUI userUI = new UserManagerUI();
     private MenuItemUI menuUI = new MenuItemUI();
     private TableUI tableUI = new TableUI();
 
-    public void menu(User user) {
+    public boolean menu() {
         while (true) {
             System.out.println("\n===== MANAGER MENU =====");
             System.out.println("1. Quản lý User");
@@ -22,7 +22,7 @@ public class ManagerMenu {
                 case 1 -> userUI.menu();
                 case 2 -> menuUI.menu();
                 case 3 -> tableUI.menu();
-                case 0 -> { return; }
+                case 0 -> { return true; }
             }
         }
     }

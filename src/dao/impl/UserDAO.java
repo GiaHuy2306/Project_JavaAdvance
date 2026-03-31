@@ -1,4 +1,4 @@
-package dao.iml;
+package dao.impl;
 
 import dao.IUserDAO;
 import model.User;
@@ -11,6 +11,78 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO implements IUserDAO {
+
+    @Override
+    public User login(String username, String password) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String dbPassword = rs.getString("password");
+
+                if (!dbPassword.equals(password)) {
+                    return null;
+                }
+
+                if (!rs.getBoolean("status")) {
+                    throw new RuntimeException("Tài khoản bị khóa");
+                }
+
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUsername(username);
+                user.setRole(Role.fromString(rs.getString("role")));
+                user.setStatus(UserStatus.fromString(rs.getString("status")));
+
+                return user;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return null;
+    }
+
+    @Override
+    public void register(User user) throws Exception {
+        String sql = "INSERT INTO users(username, password, role, status) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getRole().name());
+            ps.setBoolean(4, true);
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
     @Override
     public List<User> findAll() {

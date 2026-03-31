@@ -1,7 +1,7 @@
 package model.enums;
 
 public enum OrderItemStatus {
-    PENDING, COOKING, READY, SERVED;
+    PENDING, COOKING, READY, SERVED, CANCEL;
 
     public static OrderItemStatus fromString(String value){
         try{

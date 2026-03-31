@@ -7,9 +7,12 @@ public class OrderItem {
     private int orderId;
     private int menuId;
     private int quantity;
+    private double priceAtOrder;
     private OrderItemStatus status;
 
-    public OrderItem(int id, int menuId, int orderId, int quantity, OrderItemStatus status) {
+    public OrderItem() {}
+
+    public OrderItem(int id, int menuId, int orderId, int quantity, double priceAtOrder, OrderItemStatus status) {
         this.id = id;
         this.menuId = menuId;
         this.orderId = orderId;
@@ -25,19 +28,19 @@ public class OrderItem {
         this.id = id;
     }
 
-    public int getMenuItem() {
+    public int getMenuId() {
         return menuId;
     }
 
-    public void setMenuItem(int menuId) {
+    public void setMenuId(int menuId) {
         this.menuId = menuId;
     }
 
-    public int getOrder() {
+    public int getOrderId() {
         return orderId;
     }
 
-    public void setOrder(int orderId) {
+    public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
 
@@ -55,5 +58,13 @@ public class OrderItem {
 
     public void setStatus(OrderItemStatus status) {
         this.status = status;
+    }
+
+    public double getPriceAtOrder() {
+        return  priceAtOrder;
+    }
+
+    public void setPriceAtOrder(double price) {
+        this.priceAtOrder = price;
     }
 }

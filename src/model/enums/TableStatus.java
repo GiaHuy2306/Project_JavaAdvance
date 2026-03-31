@@ -2,7 +2,7 @@ package model.enums;
 
 
 public enum TableStatus {
-    FULL, EMPTY;
+    FULL, EMPTY, DELETED;
 
     public static TableStatus fromString(String name) {
         try {

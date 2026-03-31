@@ -1,13 +1,13 @@
 package model.enums;
 
 public enum OrderStatus {
-    OPEN, CLOSED;
+    PENDING, IN_PROGRESS, DONE, CANCEL;
 
     public static OrderStatus fromString(String value){
         try {
             return OrderStatus.valueOf(value.toUpperCase());
         }catch (Exception e){
-            return OPEN;
+            return PENDING;
         }
     }
 }

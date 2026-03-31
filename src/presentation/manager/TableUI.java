@@ -1,9 +1,9 @@
-package presentation;
+package presentation.manager;
 
 import model.Table;
 import model.enums.TableStatus;
 import service.ITableService;
-import service.iml.TableService;
+import service.impl.TableService;
 import utils.InputMethod;
 
 import java.util.List;
@@ -178,21 +178,42 @@ public class TableUI {
         }
 
         while (true) {
-            table.setName(name);
-            table.setCapacity(capacity);
-            table.setStatus(status);
+            try {
+                table.setName(name);
+                table.setCapacity(capacity);
+                table.setStatus(status);
 
-            service.updateTable(table);
-            System.out.println("Cập nhật thành công");
-
+                service.updateTable(table);
+                System.out.println("Cập nhật thành công");
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+            }
             break;
         }
     }
 
-    private void deleteTable() throws Exception{
-        int id = InputMethod.inputInt("Nhập ID cần xóa: ");
-        service.deleteTable(id);
-        System.out.println("Xóa thành công");
+    private void deleteTable() {
+        int id;
+
+        while (true) {
+            id = InputMethod.inputInt("Nhập ID cần xóa: ");
+            if (id > 0) break;
+            System.out.println("ID phải > 0");
+        }
+
+        boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn xóa không? ");
+        if (!confirm) {
+            System.out.println("Đã hủy xóa");
+            return;
+        }
+
+        try {
+            service.deleteTable(id);
+            System.out.println("Xóa thành công");
+
+        } catch (Exception e) {
+            System.out.println("Xóa thất bại: " +e.getMessage());
+        }
     }
 
     private void searchTableByType() {

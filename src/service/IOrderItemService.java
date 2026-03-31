@@ -1,17 +1,17 @@
 package service;
 
+import dto.OrderItemView;
 import model.OrderItem;
 
+import java.sql.Connection;
 import java.util.List;
 
 public interface IOrderItemService {
-    void addItem(int orderId, int menuId, int quantity) throws Exception;
 
-    void updateStatus(int orderItemId, String status) throws Exception;
 
-    List<OrderItem> findByOrder(int orderId) throws Exception;
+    void addItemByTable(int customerId, int tableId, int menuItemId, int quantity) throws Exception;
 
-    List<OrderItem> findByStatus(String status) throws Exception;
+    List<OrderItemView> getByTable(int customerId, int tableId) throws Exception;
 
-    void cancelItem(int orderItemId) throws Exception;
+    void cancelItem(int customerId, int orderItemId) throws Exception;
 }

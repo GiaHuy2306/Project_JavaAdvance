@@ -10,6 +10,13 @@ import java.util.List;
 public interface IUserDAO {
     void insert (User user) throws SQLException;
     User findByUserName(String username) throws SQLException;
+
+    User login(String username, String password);
+
+    void register(User user) throws Exception;
+
+    boolean existsByUsername(String username);
+
     List<User> findAll();
     void updateStatus(int id, UserStatus status) throws SQLException;
 }

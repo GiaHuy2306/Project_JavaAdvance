@@ -1,6 +1,6 @@
-package service.iml;
+package service.impl;
 
-import dao.iml.UserDAO;
+import dao.impl.UserDAO;
 import model.User;
 import model.enums.Role;
 import model.enums.UserStatus;

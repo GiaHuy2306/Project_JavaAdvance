@@ -25,6 +25,8 @@ create table if not exists Tables (
     status enum ('FULL', 'EMPTY') default 'EMPTY'
 );
 
+alter table Tables modify column status enum ('FULL', 'EMPTY', 'DELETED') not null default 'EMPTY';
+
 -- =========================
 -- MENU
 -- =========================
@@ -52,6 +54,8 @@ create table if not exists Orders (
     foreign key(table_id) references Tables(table_id),
     foreign key(customer_id) references Users(user_id)
 );
+
+alter table Orders modify column status enum ('PENDING', 'IN_PROGRESS', 'DONE', 'CANCEL') not null default 'PENDING';
 
 -- =========================
 -- ORDER ITEMS
