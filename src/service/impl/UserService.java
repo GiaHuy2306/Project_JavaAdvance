@@ -5,8 +5,10 @@ import model.User;
 import model.enums.Role;
 import model.enums.UserStatus;
 import service.IUserService;
+import utils.DBConnection;
 import utils.HashPassword;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class UserService implements IUserService {
@@ -65,8 +67,36 @@ public class UserService implements IUserService {
         return dao.findAll();
     }
 
+    // Sửa trong UserService.java
     @Override
     public void banUser(int userId) throws Exception {
-        dao.updateStatus(userId, UserStatus.BANNED);
+        try (Connection conn = DBConnection.getConnection()) {
+            // 1. Tìm thông tin người dùng đang định khóa
+            User targetUser = dao.findById(conn, userId);
+
+            if (targetUser == null) {
+                throw new Exception("Không tìm thấy người dùng này trong hệ thống!");
+            }
+
+            if (targetUser.getStatus() == UserStatus.BANNED) {
+                throw new Exception("Tài khoản này đã bị khóa từ trước rồi!");
+            }
+
+            if (targetUser.getRole() == Role.MANAGER) {
+                int activeManagerCount = dao.countActiveManagers(conn);
+
+                if (activeManagerCount <= 1) {
+                    throw new Exception("BẢO MẬT: Đây là Quản lý duy nhất còn lại của hệ thống. Bạn không thể khóa tài khoản này!");
+                }
+            }
+
+            // 3. Vượt qua mọi bài kiểm tra thì mới tiến hành khóa
+            boolean isSuccess = dao.updateStatus(conn, userId, UserStatus.BANNED);
+
+            if (!isSuccess) {
+                throw new Exception("Khóa tài khoản thất bại do lỗi CSDL.");
+            }
+
+        }
     }
 }

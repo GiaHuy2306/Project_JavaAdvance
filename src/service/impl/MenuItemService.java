@@ -8,6 +8,7 @@ import service.IMenuItemService;
 import utils.DBConnection;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class MenuItemService implements IMenuItemService {
@@ -35,16 +36,19 @@ public class MenuItemService implements IMenuItemService {
                 MenuItem existing = dao.findById(conn, item.getId());
 
                 if (existing == null){
-                    throw new Exception("Không tìm thấy menu item với id này");
+                    throw new Exception("Không tìm thấy menu item với ID này");
                 }
 
-                if (item.getName().isEmpty()) throw new Exception("Tên menu item không được trống");
+                if (item.getName() == null || item.getName().trim().isEmpty()) {
+                    throw new Exception("Tên menu item không được trống");
+                }
                 if (item.getPrice() <= 0) throw new Exception("Giá phải lớn hơn 0");
                 if (item.getStock() < 0) throw new Exception("Số lượng phải >= 0");
 
-                existing.setName(item.getName());
+                existing.setName(item.getName().trim());
                 existing.setFoodType(item.getFoodType());
                 existing.setPrice(item.getPrice());
+
                 existing.updateStock(item.getStock());
 
                 if (existing.getStock() > 0) {
@@ -54,12 +58,15 @@ public class MenuItemService implements IMenuItemService {
                 }
 
                 dao.update(conn, existing);
-
                 conn.commit();
 
-            } catch (Exception e) {
-                conn.rollback();
-                throw e;
+            } catch (SQLException e) {
+                try {
+                    if (conn != null) conn.rollback();
+                } catch (Exception rollbackEx) {
+                    e.addSuppressed(rollbackEx);
+                }
+                throw new Exception("Lỗi hệ thống: Không thể cập nhật vào cơ sở dữ liệu (" + e.getMessage() + ")");
             }
         }
     }
@@ -70,30 +77,46 @@ public class MenuItemService implements IMenuItemService {
             MenuItem item = dao.findById(conn, id);
 
             if (item == null){
-                throw new Exception("Không tìm thấy menu item với id này");
+                throw new Exception("Không tìm thấy món ăn có ID " + id + " để xóa!");
             }
-            dao.delete(id);
-        }catch (Exception e){
-            throw new Exception("Xóa thất bại");
+            dao.delete(conn, id);
+        }catch (SQLException e){
+            throw new Exception("Lỗi hệ thống: Không thể xóa món ăn do ràng buộc dữ liệu!");
         }
     }
 
     @Override
     public MenuItem findById(int id) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
-            return dao.findById(conn, id);
-        }catch (Exception e){
-            throw new Exception("Tìm kiếm thất bại");
+            MenuItem item = dao.findById(conn, id);
+            if (item == null) {
+                throw new Exception("Lỗi: Không tìm thấy món ăn có ID: " + id);
+            }
+            return item;
+        }catch (SQLException e){
+            throw new Exception("Lỗi hệ thống: Quá trình kết nối database bị gián đoạn!");
         }
     }
 
     @Override
     public List<MenuItem> findByType(FoodType foodType) throws Exception {
-        return dao.findByType(foodType);
+        try (Connection conn = DBConnection.getConnection()) {
+            List<MenuItem> result = dao.findByType(conn, foodType);
+            if (result.isEmpty()) {
+                throw new Exception("Hiện không có món nào thuộc loại " + foodType);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new Exception("Lỗi hệ thống: Không thể lọc món ăn theo loại!");
+        }
     }
 
     @Override
     public List<MenuItem> findAll() throws Exception {
-        return dao.findAll();
+        try {
+            return dao.findAll();
+        } catch (SQLException e) {
+            throw new Exception("Lỗi hệ thống: Không thể lấy danh sách thực đơn!");
+        }
     }
 }

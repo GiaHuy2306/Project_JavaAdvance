@@ -16,6 +16,7 @@ import service.impl.OrderService;
 import service.impl.TableService;
 import utils.InputMethod;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class CustomerUI {
@@ -27,13 +28,18 @@ public class CustomerUI {
 
     public boolean menu(int userId) {
         while (true) {
-            System.out.println("\n===== CUSTOMER MENU =====");
-            System.out.println("1. Chọn bàn");
-            System.out.println("2. Gọi món");
-            System.out.println("3. Xem món đã gọi");
-            System.out.println("4. Hủy món");
-            System.out.println("5. Thanh toán");
-            System.out.println("0. Thoát");
+            String separator = "+-----------------------------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|           CUSTOMER MENU           |");
+            System.out.println(separator);
+            System.out.printf("| %-33s |\n", "1. Chọn bàn");
+            System.out.printf("| %-33s |\n", "2. Gọi món");
+            System.out.printf("| %-33s |\n", "3. Xem món đã gọi");
+            System.out.printf("| %-33s |\n", "4. Hủy món");
+            System.out.printf("| %-33s |\n", "5. Thanh toán");
+            System.out.printf("| %-33s |\n", "0. Đăng xuất");
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn: ");
 
@@ -45,8 +51,10 @@ public class CustomerUI {
                     case 4 -> cancelItem(userId);
                     case 5 -> checkout(userId);
                     case 0 -> {
-                        System.out.println("Thoát!");
-                        return true;
+                        boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn đăng xuất");
+                        if (confirm){
+                            return true;
+                        }
                     }
                     default -> System.out.println("Lựa chọn không hợp lệ!");
                 }
@@ -59,19 +67,26 @@ public class CustomerUI {
     // ================= CHỌN BÀN =================
     private void selectTable(int userId) {
         try {
-            List<Table> tables = tableService.findStatusTable(TableStatus.EMPTY); // chỉ bàn EMPTY
+            List<Table> tables = tableService.findStatusTable(TableStatus.EMPTY);
             if (tables.isEmpty()) {
                 System.out.println("Không có bàn nào trống!");
                 return;
             }
 
-            System.out.println("\n===== DANH SÁCH BÀN =====");
-            System.out.printf("%-5s %-15s %-10s%n", "STT", "Tên bàn", "Trạng thái");
+            String separator = "+-------+-----------------+-----------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|              DANH SÁCH BÀN                |");
+            System.out.println(separator);
+            System.out.printf("| %-5s | %-15s | %-15s |%n", "STT", "Tên bàn", "Trạng thái");
+            System.out.println(separator);
+
             for (int i = 0; i < tables.size(); i++) {
                 Table t = tables.get(i);
-                System.out.printf("%-5d %-15s %-10s%n",
+                System.out.printf("| %-5d | %-15s | %-15s |%n",
                         i + 1, t.getName(), t.getStatus());
             }
+            System.out.println(separator);
 
             int choice;
             while (true) {
@@ -80,14 +95,16 @@ public class CustomerUI {
                 System.out.println("Lựa chọn không hợp lệ, hãy chọn từ 1 đến " + tables.size());
             }
 
-            int tableId = tables.get(choice - 1).getId();
+            Table selectedTable = tables.get(choice - 1);
 
             // Tạo order nếu chưa có
-            if (orderService.getActiveByTableAndCustomer(tableId, userId) == null) {
-                orderService.createOrder(userId, tableId);
+            if (orderService.getActiveByTableAndCustomer(selectedTable.getId(), userId) == null) {
+                orderService.createOrder(userId, selectedTable.getId());
             }
 
-            System.out.println("Đã chọn bàn " + tables.get(choice - 1).getName());
+            selectedTable.setStatus(TableStatus.FULL);
+            tableService.updateTable(selectedTable);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -95,13 +112,16 @@ public class CustomerUI {
 
     // ================= GỌI MÓN =================
     private void addItem(int userId) {
-        TableChoice table = chooseTableWithName(userId);
-        if (table == null) return;
+        TableChoice choice = chooseTableWithName(userId);
+        if (choice == null) return;
 
         try {
-            // Tạo order nếu chưa có
-            if (orderService.getActiveByTableAndCustomer(table.getTableId(), userId) == null) {
-                orderService.createOrder(userId, table.getTableId());
+            // Lấy order hiện tại
+            Order order = orderService.getActiveByTableAndCustomer(choice.getTableId(), userId);
+            if (order == null) {
+                System.out.println("Bàn chưa có order, tạo order mới...");
+                orderService.createOrder(userId, choice.getTableId());
+                order = orderService.getActiveByTableAndCustomer(choice.getTableId(), userId);
             }
 
             List<MenuItem> menuList = menuItemService.findAll();
@@ -110,22 +130,36 @@ public class CustomerUI {
                 return;
             }
 
-            System.out.println("\n===== MENU =====");
-            System.out.printf("%-5s %-20s %-10s %-10s%n", "STT", "Tên", "Giá", "Stock");
+            String separator = "+-------+---------------------------+-----------------+------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|                               MENU                                |");
+            System.out.println(separator);
+
+            System.out.printf("| %-5s | %-25s | %-15s | %-11s |%n", "STT", "Tên món", "Giá", "Kho (Stock)");
+            System.out.println(separator);
+
+            DecimalFormat df = new DecimalFormat("#,### VNĐ");
             for (int i = 0; i < menuList.size(); i++) {
                 MenuItem m = menuList.get(i);
-                System.out.printf("%-5d %-20s %-10.2f (còn %d)%n",
-                        i + 1, m.getName(), m.getPrice(), m.getStock());
-            }
+                String stockInfo = "Còn " + m.getStock();
 
-            int choice;
+                System.out.printf("| %-5d | %-25s | %-15s | %-11s |%n",
+                        i + 1,
+                        m.getName(),
+                        df.format(m.getPrice()),
+                        stockInfo);
+            }
+            System.out.println(separator);
+
+            int menuChoice;
             while (true) {
-                choice = InputMethod.inputInt("Chọn món: ");
-                if (choice >= 1 && choice <= menuList.size()) break;
+                menuChoice = InputMethod.inputInt("Chọn món: ");
+                if (menuChoice >= 1 && menuChoice <= menuList.size()) break;
                 System.out.println("Lựa chọn không hợp lệ!");
             }
 
-            MenuItem selectedItem = menuList.get(choice - 1);
+            MenuItem selectedItem = menuList.get(menuChoice - 1);
 
             int quantity;
             while (true) {
@@ -134,8 +168,8 @@ public class CustomerUI {
                 System.out.println("Số lượng phải > 0");
             }
 
-            orderItemService.addItemByTable(userId, table.getTableId(), selectedItem.getId(), quantity);
-            System.out.println("Gọi món thành công cho bàn " + table.getTableName());
+            orderItemService.addItemByTable(userId, choice.getTableId(), selectedItem.getId(), quantity);
+            System.out.println("Gọi món thành công cho bàn " + choice.getTableName());
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -144,34 +178,35 @@ public class CustomerUI {
 
     // ================= XEM MÓN =================
     private void viewItems(int userId) {
-        TableChoice table = chooseTableWithName(userId);
-        if (table == null) return;
-        showItems(userId, table.getTableId());
+        TableChoice choice = chooseTableWithName(userId);
+        if (choice == null) return;
+        showItems(userId, choice.getTableId());
     }
 
     // ================= HỦY MÓN =================
     private void cancelItem(int userId) {
-        TableChoice table = chooseTableWithName(userId);
-        if (table == null) return;
+        TableChoice choice = chooseTableWithName(userId);
+        if (choice == null) return;
 
         try {
-            List<OrderItemView> items = orderItemService.getByTable(userId, table.getTableId());
+            List<OrderItemView> items = orderItemService.getByTable(userId, choice.getTableId());
             if (items.isEmpty()) {
                 System.out.println("Không có món để hủy");
                 return;
             }
 
-            showItems(userId, table.getTableId());
+            showItems(userId, choice.getTableId());
 
-            int choice = InputMethod.inputInt("Nhập ID món cần hủy: ");
-            boolean valid = items.stream().anyMatch(i -> i.getId() == choice);
+            int itemChoice = InputMethod.inputInt("Nhập ID món cần hủy: ");
+            boolean valid = items.stream().anyMatch(i -> i.getId() == itemChoice);
             if (!valid) {
                 System.out.println("Lựa chọn không hợp lệ!");
                 return;
             }
 
-            orderItemService.cancelItem(userId, choice);
+            orderItemService.cancelItem(userId, itemChoice);
             System.out.println("Hủy thành công!");
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -179,12 +214,20 @@ public class CustomerUI {
 
     // ================= THANH TOÁN =================
     private void checkout(int userId) {
-        TableChoice table = chooseTableWithName(userId);
-        if (table == null) return;
+        TableChoice choice = chooseTableWithName(userId);
+        if (choice == null) return;
 
         try {
-            orderService.checkoutByTable(userId, table.getTableId());
-            System.out.println("Thanh toán thành công cho bàn " + table.getTableName());
+            orderService.checkoutByTable(userId, choice.getTableId());
+
+            Table table = tableService.findById(choice.getTableId());
+            if (table != null){
+                table.setStatus(TableStatus.EMPTY);
+                tableService.updateTable(table);
+            }
+
+            System.out.println("Thanh toán thành công cho bàn: " + choice.getTableName());
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -193,39 +236,51 @@ public class CustomerUI {
     // ================= HELPER =================
     private TableChoice chooseTableWithName(int userId) {
         try {
-            List<Order> orders = orderService.getActiveOrdersByCustomer(userId);
-            if (orders.isEmpty()) {
-                System.out.println("Bạn không có bàn nào");
+            List<Order> activeOrders = orderService.getActiveOrdersByCustomer(userId);
+
+            // 1. TẠO DANH SÁCH CHỈ CHỨA BÀN HỢP LỆ
+            List<Order> validOrders = new java.util.ArrayList<>();
+            for (Order order : activeOrders) {
+                if (tableService.findById(order.getTableId()) != null) {
+                    validOrders.add(order);
+                }
+            }
+
+            if (validOrders.isEmpty()) {
+                System.out.println("Bạn chưa có bàn nào!, Vui lòng chọn bàn trước");
                 return null;
             }
 
-            System.out.println("\n===== BÀN CỦA BẠN =====");
-            System.out.printf("%-5s %-10s %-20s %-10s%n", "STT", "Table ID", "Tên bàn", "Trạng thái");
+            String separator = "+-------+----------------------+-----------------+";
 
-            for (int i = 0; i < orders.size(); i++) {
-                Order o = orders.get(i);
-                Table t = tableService.findById(o.getTableId());
-                if (t == null || t.getStatus() == TableStatus.DELETED) continue; // skip bàn DELETED
-                System.out.printf("%-5d %-10d %-20s %-10s%n",
-                        i + 1, o.getTableId(),
+            System.out.println("\n" + separator);
+            System.out.println("|                  BÀN CỦA BẠN                    |");
+            System.out.println(separator);
+
+            System.out.printf("| %-5s | %-20s | %-16s |%n", "STT", "Tên bàn", "Trạng thái Order");
+            System.out.println(separator);
+
+            for (int i = 0; i < validOrders.size(); i++) {
+                Order order = validOrders.get(i);
+                Table t = tableService.findById(order.getTableId());
+
+                System.out.printf("| %-5d | %-20s | %-16s |%n",
+                        i + 1,
                         t.getName(),
-                        o.getStatus());
+                        order.getStatus());
             }
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn bàn: ");
-            if (choice < 1 || choice > orders.size()) {
+            if (choice < 1 || choice > validOrders.size()) {
                 System.out.println("Lựa chọn không hợp lệ!");
                 return null;
             }
 
-            Order o = orders.get(choice - 1);
-            Table t = tableService.findById(o.getTableId());
-            if (t == null || t.getStatus() == TableStatus.DELETED) {
-                System.out.println("Bàn không tồn tại hoặc đã bị xóa!");
-                return null;
-            }
+            Order selectedOrder = validOrders.get(choice - 1);
+            Table t = tableService.findById(selectedOrder.getTableId());
 
-            return new TableChoice(o.getTableId(), t.getName());
+            return new TableChoice(selectedOrder.getTableId(), t.getName());
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -241,34 +296,45 @@ public class CustomerUI {
                 return;
             }
 
-            System.out.println("\n===== DANH SÁCH MÓN =====");
-            System.out.printf("%-5s %-20s %-10s %-10s %-10s%n",
+            String separator = "+-------+---------------------------+-------+-----------------+-----------------+";
+
+            System.out.println("\n" + separator);
+
+            System.out.println("|                                DANH SÁCH MÓN                                  |");
+            System.out.println(separator);
+
+            System.out.printf("| %-5s | %-25s | %-5s | %-15s | %-15s |%n",
                     "ID", "Tên món", "SL", "Giá", "Trạng thái");
+            System.out.println(separator);
 
             double total = 0;
+            DecimalFormat df = new DecimalFormat("#,### VNĐ");
+
             for (OrderItemView i : items) {
                 String name = i.getName() != null ? i.getName() : "[Đã xóa]";
                 double price = i.getPriceAtOrder();
-                total += price * i.getQuantity();
-                System.out.printf("%-5d %-20s %-10d %-10.2f %-10s%n",
-                        i.getId(), name, i.getQuantity(), price, i.getStatus());
+
+                if (!"CANCEL".equalsIgnoreCase(i.getStatus())) {
+                    total += price * i.getQuantity();
+                }
+
+                // In từng dòng dữ liệu của món ăn
+                System.out.printf("| %-5d | %-25s | %-5d | %-15s | %-15s |%n",
+                        i.getId(),
+                        name,
+                        i.getQuantity(),
+                        df.format(price),
+                        i.getStatus());
             }
 
-            System.out.println("---------------------------------------");
-            System.out.printf("TỔNG TIỀN: %.2f%n", total);
+            System.out.println(separator);
+
+            String totalLine = String.format("TỔNG TIỀN (KHÔNG TÍNH MÓN HỦY): %s", df.format(total));
+            System.out.printf("| %-77s |%n", totalLine);
+            System.out.println(separator);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
-
-    // Helper class lưu ID và tên bàn
-//    private static class TableChoice {
-//        int tableId;
-//        String tableName;
-//        public TableChoice(int tableId, String tableName) {
-//            this.tableId = tableId;
-//            this.tableName = tableName;
-//        }
-//    }
 }

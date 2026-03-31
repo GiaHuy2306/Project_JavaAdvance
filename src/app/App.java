@@ -1,6 +1,7 @@
 package app;
 
 import model.User;
+import presentation.chef.ChefUI;
 import presentation.customer.CustomerUI;
 import presentation.manager.AuthUI;
 import presentation.manager.ManagerMenuUI;
@@ -24,7 +25,7 @@ public class App {
                     backToMainMenu = new ManagerMenuUI().menu();
                     break;
                 case CHEF:
-//                    backToMainMenu = new ChefUI().menu();
+                    backToMainMenu = new ChefUI().menu();
                     break;
                 case CUSTOMER:
                     backToMainMenu = new CustomerUI().menu(user.getId());

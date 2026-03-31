@@ -125,6 +125,19 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
+    public User findById(Connection conn, int id) throws SQLException {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return map(rs);
+            }
+        }
+        return null;
+    }
+
+    @Override
     public User findByUserName(String username) throws SQLException {
         String sqlFindUserName = "SELECT user_id, username, password, role, status FROM Users WHERE username = ? ";
         Connection conn = DBConnection.getConnection();
@@ -139,20 +152,27 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public void updateStatus(int user_id, UserStatus status) throws SQLException {
+    public boolean updateStatus(Connection conn, int user_id, UserStatus status) throws SQLException {
         String sqlUpdateStatus = "UPDATE Users SET status = ? WHERE user_id = ?";
 
-        Connection conn = DBConnection.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus);
-        ps.setString(1, status.name());
-        ps.setInt(2, user_id);
-        int count = ps.executeUpdate();
-
-        if (count > 0) {
-            System.out.println("Cập nhật trạng thái user thành công");
-        }else {
-            System.out.println("Cập nhật trạng thái user thất bại");
+        try (PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus);) {
+            ps.setString(1, status.name());
+            ps.setInt(2, user_id);
+            return ps.executeUpdate() > 0;
         }
+    }
+
+    @Override
+    public int countActiveManagers(Connection conn) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = 'MANAGER' AND status != 'BANNED'";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
 
     private User map(ResultSet rs) throws SQLException {

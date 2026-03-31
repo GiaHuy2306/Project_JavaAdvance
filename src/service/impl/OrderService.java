@@ -34,12 +34,17 @@ public class OrderService implements IOrderService {
     public Order getActiveByTableAndCustomer(int tableId, int customerId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
             Order order = orderDAO.findActiveByTableAndCustomer(conn, tableId, customerId);
+
+            if (order == null) {
+                throw new Exception("Bạn không có đơn hàng nào đang hoạt động tại bàn này.");
+            }
+
             if (order != null && order.getStatus().equals(OrderStatus.DELETE)) {
                 return null;
             }
             return  order;
         } catch (Exception e) {
-            throw new Exception("Của bạn không có bàn này");
+            throw new Exception("Lỗi hệ thống: Không thể truy xuất thông tin đơn hàng lúc này");
         }
     }
 
@@ -58,10 +63,13 @@ public class OrderService implements IOrderService {
             conn.setAutoCommit(false);
             Order order = getActiveByTableAndCustomer(tableId, customerId);
             if(order == null) throw new Exception("Không tìm thấy order để thanh toán");
+
+            boolean success = orderDAO.checkout(conn, order.getId());
+            if(!success) throw new Exception("Hệ thống không thể cập nhật trạng thái thanh toán.");
             orderDAO.checkout(conn, order.getId());
             conn.commit();
         } catch (Exception e) {
-            throw new Exception("Thanh toán thất bại: " + e.getMessage());
+            throw new Exception("Lỗi hệ thống: Quá trình thanh toán gặp sự cố kỹ thuật");
         }
     }
 }

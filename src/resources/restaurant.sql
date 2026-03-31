@@ -72,3 +72,4 @@ create table if not exists OrderItem (
     foreign key (menu_id) references Menu(menu_id)
 );
 
+DELETE FROM orders WHERE table_id NOT IN (SELECT table_id FROM tables);

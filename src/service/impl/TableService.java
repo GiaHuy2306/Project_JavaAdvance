@@ -79,8 +79,6 @@ public class TableService implements ITableService {
                 throw new Exception("Bàn đang có khách, không thể xóa");
             }
             dao.delete(id);
-        }catch (Exception e){
-            throw new Exception("Xóa thất bại");
         }
     }
 

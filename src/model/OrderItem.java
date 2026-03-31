@@ -18,6 +18,7 @@ public class OrderItem {
         this.orderId = orderId;
         this.quantity = quantity;
         this.status = status;
+        this.priceAtOrder = priceAtOrder;
     }
 
     public int getId() {

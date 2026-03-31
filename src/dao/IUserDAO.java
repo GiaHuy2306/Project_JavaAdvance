@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface IUserDAO {
     void insert (User user) throws SQLException;
+    User findById(Connection conn, int id) throws SQLException;
     User findByUserName(String username) throws SQLException;
 
     User login(String username, String password);
@@ -18,5 +19,7 @@ public interface IUserDAO {
     boolean existsByUsername(String username);
 
     List<User> findAll();
-    void updateStatus(int id, UserStatus status) throws SQLException;
+    boolean updateStatus(Connection conn, int id, UserStatus status) throws SQLException;
+
+    int countActiveManagers(Connection conn) throws SQLException;
 }

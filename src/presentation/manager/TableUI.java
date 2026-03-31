@@ -14,13 +14,18 @@ public class TableUI {
     public void menu(){
         while (true){
             try {
-                System.out.println("\n===== Table Manager =====");
-                System.out.println("1. Thêm bàn");
-                System.out.println("2. Danh sách bàn");
-                System.out.println("3. Cập nhật bàn");
-                System.out.println("4. Xóa bàn");
-                System.out.println("5. Tìm kiếm bàn theo trạng thái");
-                System.out.println("0. Thoát");
+                String separator = "+-----------------------------------+";
+
+                System.out.println("\n" + separator);
+                System.out.println("|           TABLE MANAGER           |");
+                System.out.println(separator);
+                System.out.printf("| %-33s |\n", "1. Thêm bàn");
+                System.out.printf("| %-33s |\n", "2. Danh sách bàn");
+                System.out.printf("| %-33s |\n", "3. Cập nhật bàn");
+                System.out.printf("| %-33s |\n", "4. Xóa bàn");
+                System.out.printf("| %-33s |\n", "5. Tìm kiếm bàn theo trạng thái");
+                System.out.printf("| %-33s |\n", "0. Đăng xuất");
+                System.out.println(separator);
 
                 int choice = InputMethod.inputInt("Chọn: ");
 
@@ -41,10 +46,14 @@ public class TableUI {
                         searchTableByType();
                     }
                     case 0 -> {
-                        return;
+                        boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn đăng xuất");
+                        if (confirm){
+                            return;
+                        }
                     }
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -80,10 +89,16 @@ public class TableUI {
 
         TableStatus status;
         while (true) {
-            System.out.println("1. EMPTY");
-            System.out.println("2. FULL");
+            String separator = "+-----------------------------------+";
 
-            int choice = InputMethod.inputInt("Chọn trạng thái: ");
+            System.out.println("\n" + separator);
+            System.out.println("|         CHỌN TRẠNG THÁI           |");
+            System.out.println(separator);
+            System.out.printf("| %-33s |\n", "1. EMPTY");
+            System.out.printf("| %-33s |\n", "2. FULL");
+            System.out.println(separator);
+
+            int choice = InputMethod.inputInt("Chọn trạng thái (1 or 2): ");
 
             if (choice == 1) {
                 status = TableStatus.EMPTY;
@@ -115,14 +130,24 @@ public class TableUI {
     private void showTable() throws Exception{
         List<Table> list = service.findAll();
 
-        System.out.println("\n===== Danh sách bàn =====");
-        System.out.printf("%-5s %-15s %-10s %-10s\n",
+        String separator = "+-------+-----------------+------------+-----------------+";
+
+        System.out.println("\n" + separator);
+        System.out.println("|                     DANH SÁCH BÀN                      |");
+        System.out.println(separator);
+
+        System.out.printf("| %-5s | %-15s | %-10s | %-15s |%n",
                 "ID", "Tên bàn", "Sức chứa", "Trạng thái");
+        System.out.println(separator);
 
         for (Table t : list) {
-            System.out.printf("%-5s %-15s %-10s %-10s\n",
-                    t.getId(), t.getName(), t.getCapacity(), t.getStatus());
+            System.out.printf("| %-5s | %-15s | %-10s | %-15s |%n",
+                    t.getId(),
+                    t.getName(),
+                    t.getCapacity(),
+                    t.getStatus());
         }
+        System.out.println(separator);
     }
 
     private void updateTable() throws Exception{
@@ -160,8 +185,14 @@ public class TableUI {
 
         TableStatus status;
         while (true) {
-            System.out.println("1. EMPTY");
-            System.out.println("2. FULL");
+            String separator = "+-----------------------------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|         CHỌN TRẠNG THÁI           |");
+            System.out.println(separator);
+            System.out.printf("| %-31s |\n", "1. EMPTY");
+            System.out.printf("| %-31s |\n", "2. FULL");
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn trạng thái mới (" +table.getStatus().name() + "): ");
 
@@ -219,9 +250,14 @@ public class TableUI {
     private void searchTableByType() {
         TableStatus status = null;
         try {
-            System.out.println("Nhập trạng thái bàn muốn tìm: ");
-            System.out.println("1. EMPTY");
-            System.out.println("2. FULL");
+            String separator = "+-----------------------------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|         CHỌN TRẠNG THÁI           |");
+            System.out.println(separator);
+            System.out.printf("| %-33s |\n", "1. EMPTY");
+            System.out.printf("| %-33s |\n", "2. FULL");
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn: ");
             if (choice == 1) {
@@ -239,10 +275,19 @@ public class TableUI {
                 return;
             }
 
+            System.out.println("\n+-------+-----------------+------------+-----------------+");
+            System.out.printf("\n| %-5s | %-15s | %-10s | %-15s |%n",
+                    "ID", "Tên", "Số chỗ", "Trạng thái");
+
+            System.out.println("+-------+-----------------+------------+-----------------+");
             for (Table t : list) {
-                System.out.printf("%-5s %-15s %-10s %-10s\n",
-                        t.getId(), t.getName(), t.getCapacity(), t.getStatus());
+                System.out.printf("| %-5s | %-15s | %-10s | %-15s |%n",
+                        t.getId(),
+                        t.getName(),
+                        t.getCapacity(),
+                        t.getStatus());
             }
+            System.out.println("+-------+-----------------+------------+-----------------+");
 
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi tìm bàn: " +e.getMessage());

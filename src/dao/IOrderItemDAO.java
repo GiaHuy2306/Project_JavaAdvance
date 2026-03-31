@@ -1,5 +1,6 @@
 package dao;
 
+import dto.ChefItemView;
 import model.OrderItem;
 import java.sql.Connection;
 import java.util.List;
@@ -11,4 +12,6 @@ public interface IOrderItemDAO {
     boolean updateQuantity(Connection conn, int itemId, int quantity);
     boolean updateStatus(Connection conn, int itemId, String status);
     boolean delete(Connection conn, int itemId);
+
+    List<ChefItemView> getPendingAndCookingItems(Connection conn);
 }

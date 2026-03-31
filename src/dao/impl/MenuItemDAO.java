@@ -64,15 +64,15 @@ public class MenuItemDAO implements IMenuItemDAO {
     }
 
     @Override
-    public List<MenuItem> findByType(FoodType foodType) throws SQLException {
+    public List<MenuItem> findByType(Connection conn, FoodType foodType) throws SQLException {
         String sqlSearchType = "SELECT menu_id, name, price, type, stock, status FROM menu WHERE type = ? AND status = ?";
         List<MenuItem> menuList = new ArrayList<>();
-        try ( Connection conn = DBConnection.getConnection();
-              PreparedStatement ps = conn.prepareStatement(sqlSearchType);
-              ResultSet rs = ps.executeQuery();) {
+        try (PreparedStatement ps = conn.prepareStatement(sqlSearchType);) {
 
             ps.setString(1, foodType.name());
             ps.setString(2, MenuStatus.AVAILABLE.name());
+
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 menuList.add(map(rs));
@@ -94,13 +94,17 @@ public class MenuItemDAO implements IMenuItemDAO {
             ps.setString(5, item.getStatus().name());
             ps.setInt(6, item.getId());
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+
+            if (rows == 0){
+                throw new SQLException("ID món ăn không tồn tại trong DB");
+            }
         }
     }
 
     @Override
     public boolean updateStock(Connection conn, int menuItemId, int newStock) throws SQLException {
-        String sql = "UPDATE menu_items SET stock = ? WHERE menu_item_id = ?";
+        String sql = "UPDATE menu SET stock = ? WHERE menu_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, newStock);
             ps.setInt(2, menuItemId);
@@ -110,11 +114,10 @@ public class MenuItemDAO implements IMenuItemDAO {
     }
 
     @Override
-    public void delete(int id) throws SQLException {
+    public void delete(Connection conn, int id) throws SQLException {
         String sqlDelete = "DELETE FROM menu WHERE menu_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlDelete);) {
+        try (PreparedStatement ps = conn.prepareStatement(sqlDelete);) {
 
             ps.setInt(1, id);
 

@@ -10,11 +10,16 @@ public class ManagerMenuUI {
 
     public boolean menu() {
         while (true) {
-            System.out.println("\n===== MANAGER MENU =====");
-            System.out.println("1. Quản lý User");
-            System.out.println("2. Quản lý Menu");
-            System.out.println("3. Quản lý Bàn");
-            System.out.println("0. Thoát");
+            String separator = "+-----------------------------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|           MANAGER MENU            |");
+            System.out.println(separator);
+            System.out.printf("| %-33s |\n", "1. Quản lý User");
+            System.out.printf("| %-33s |\n", "2. Quản lý Menu");
+            System.out.printf("| %-33s |\n", "3. Quản lý Bàn");
+            System.out.printf("| %-33s |\n", "0. Thoát");
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn: ");
 
@@ -22,7 +27,12 @@ public class ManagerMenuUI {
                 case 1 -> userUI.menu();
                 case 2 -> menuUI.menu();
                 case 3 -> tableUI.menu();
-                case 0 -> { return true; }
+                case 0 -> {
+                    boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn đăng xuất");
+                    if (confirm){
+                        return true;
+                    }
+                }
             }
         }
     }

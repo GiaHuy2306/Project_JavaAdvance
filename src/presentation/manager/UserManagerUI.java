@@ -14,11 +14,16 @@ public class UserManagerUI {
     public void menu(){
         while (true){
             try {
-                System.out.println("\n===== USER MANAGEMENT =====");
-                System.out.println("1. Tạo tài khoản");
-                System.out.println("2. Danh sách user");
-                System.out.println("3. Ban user");
-                System.out.println("0. Thoát");
+                String separator = "+-----------------------------------+";
+
+                System.out.println("\n" + separator);
+                System.out.println("|          USER MANAGEMENT          |");
+                System.out.println(separator);
+                System.out.printf("| %-33s |\n", "1. Tạo tài khoản");
+                System.out.printf("| %-33s |\n", "2. Danh sách user");
+                System.out.printf("| %-33s |\n", "3. Ban user");
+                System.out.printf("| %-33s |\n", "0. Đăng xuất");
+                System.out.println(separator);
 
                 int choice = InputMethod.inputInt("Chọn: ");
 
@@ -33,7 +38,10 @@ public class UserManagerUI {
                         banUser();
                     }
                     case 0 -> {
-                        return;
+                        boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn đăng xuất");
+                        if (confirm){
+                            return;
+                        }
                     }
                     default -> System.out.println("Lựa chọn ko hợp lệ");
                 }
@@ -47,11 +55,16 @@ public class UserManagerUI {
         String username = InputMethod.inputString("Username: ");
         String password = InputMethod.inputPassword("Password: ");
 
-        System.out.println("Chọn role: ");
-        System.out.println("1. CHEF");
-        System.out.println("2. MANAGER");
+        String separator = "+-----------------------------------+";
 
-        int choice = InputMethod.inputInt("Chọn: ");
+        System.out.println("\n" + separator);
+        System.out.println("|             CHỌN ROLE             |");
+        System.out.println(separator);
+        System.out.printf("| %-33s |\n", "1. CHEF");
+        System.out.printf("| %-33s |\n", "2. MANAGER");
+        System.out.println(separator);
+
+        int choice = InputMethod.inputInt("Chọn (1 or 2): ");
 
         Role role = (choice == 1) ? Role.CHEF : Role.MANAGER;
 
@@ -61,14 +74,25 @@ public class UserManagerUI {
     private void showUsers() throws Exception {
         List<User> list = service.getAllUser();
 
-        System.out.printf("%-5s %-15s %-10s %-10s\n", "ID", "Username", "Role", "Status");
+        if (list.isEmpty()) {
+            System.out.println("Danh sách người dùng trống.");
+            return;
+        }
+
+        String separator = "+-------+-----------------+------------+------------+";
+
+        System.out.println(separator);
+        System.out.printf("| %-5s | %-15s | %-10s | %-10s |\n", "ID", "Username", "Role", "Status");
+        System.out.println(separator);
+
         for (User u : list) {
-            System.out.printf("%-5d %-15s %-10s %-10s\n",
+            System.out.printf("| %-5d | %-15s | %-10s | %-10s |\n",
                     u.getId(),
                     u.getUsername(),
                     u.getRole(),
                     u.getStatus());
         }
+        System.out.println(separator);
     }
 
     private void banUser() throws Exception {

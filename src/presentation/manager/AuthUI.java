@@ -10,10 +10,15 @@ public class AuthUI {
 
     public User start() {
         while (true) {
-            System.out.println("\n===== RESTAURANT SYSTEM =====");
-            System.out.println("1. Đăng nhập");
-            System.out.println("2. Đăng ký");
-            System.out.println("0. Thoát");
+            String separator = "+-----------------------------------+";
+
+            System.out.println("\n" + separator);
+            System.out.println("|         RESTAURANT SYSTEM         |");
+            System.out.println(separator);
+            System.out.printf("| %-33s |\n", "1. Đăng nhập");
+            System.out.printf("| %-33s |\n", "2. Đăng ký");
+            System.out.printf("| %-33s |\n", "0. Thoát");
+            System.out.println(separator);
 
             int choice = InputMethod.inputInt("Chọn: ");
 
@@ -26,9 +31,12 @@ public class AuthUI {
                 case 2:
                     register();
                     break;
-
                 case 0:
-                    return null;
+                    boolean confirm = InputMethod.inputConfirm("Bạn có chắc chắn muốn thoát");
+                    if (confirm){
+                        return null;
+                    }
+                    break;
             }
         }
     }

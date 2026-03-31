@@ -45,12 +45,10 @@ public class DataSeeder {
                     stmt.execute(sql.toString());
                     sql.setLength(0);
                 }
-
-                System.out.println("Loaded: " + fileName);
             }
 
         } catch (Exception e) {
-            System.out.println("Lỗi khi chạy " + fileName + ": " + e.getMessage());
+            throw new RuntimeException("Lỗi khi chạy " + fileName + ": " + e.getMessage());
         }
     }
 
@@ -66,7 +64,6 @@ public class DataSeeder {
             int count = rs.getInt("count");
 
             if (count > 0) {
-                System.out.println("Admin user '" + username + "' đã tồn tại, không tạo lại.");
                 return;
             }
 
@@ -79,10 +76,9 @@ public class DataSeeder {
             );
 
             stmt.execute(sql);
-            System.out.println("Added admin user: " + username);
 
         } catch (Exception e) {
-            System.out.println("Lỗi khi thêm admin user: " + e.getMessage());
+//            System.out.println("Lỗi khi thêm admin user: " + e.getMessage());
         }
     }
 }

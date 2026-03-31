@@ -28,13 +28,6 @@ public class Order {
         this.totalAmount = totalAmount;
     }
 
-    public Order(int id, int customerId, int tableId, OrderStatus status) {
-        this.id = id;
-        this.customerId = customerId;
-        this.tableId = tableId;
-        this.status = status;
-    }
-
     public int getId() {
         return id;
     }
