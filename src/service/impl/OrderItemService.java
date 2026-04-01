@@ -14,6 +14,7 @@ import service.IOrderService;
 import utils.DBConnection;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,6 +175,57 @@ public class OrderItemService implements IOrderItemService {
 
         } catch (Exception e) {
             throw new Exception("Cập nhật trạng thái thất bại: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void approveItem(int orderItemId) throws Exception {
+        try (Connection conn = DBConnection.getConnection()) {
+            OrderItem item = orderItemDAO.findById(conn, orderItemId);
+            if (item == null) throw new Exception("Không tìm thấy món ăn này!");
+
+            MenuItem menu = menuItemDAO.findById(conn, item.getMenuId());
+            String type = menu.getFoodType().name();
+
+            if ("FOOD".equalsIgnoreCase(type)) {
+                if (item.getStatus() != OrderItemStatus.READY) {
+                    throw new Exception("Lỗi: Món ăn [" + menu.getName() + "] chưa nấu xong, không thể duyệt!");
+                }
+            } else if ("DRINK".equalsIgnoreCase(type)) {
+                if (menu.getStock() < item.getQuantity()) {
+                    throw new Exception("Lỗi: Đồ uống [" + menu.getName() + "] đã hết hàng trong kho!");
+                }
+            }
+
+            orderItemDAO.updateStatus(conn, orderItemId, OrderItemStatus.SERVED.name());
+
+        } catch (Exception e) {
+            throw new Exception("Lỗi hệ thống khi duyệt món: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<OrderItemView> getByTableForManager(int tableId) throws Exception {
+        Order order = orderService.getActiveOrderByTable(tableId);
+
+        try (Connection conn = DBConnection.getConnection()) {
+            List<OrderItem> items = orderItemDAO.findByOrderId(conn, order.getId());
+            List<OrderItemView> views = new ArrayList<>();
+
+            for(OrderItem i : items) {
+                MenuItem m = menuItemDAO.findById(conn, i.getMenuId());
+                views.add(new OrderItemView(
+                        i.getId(),
+                        i.getOrderId(),
+                        m != null ? m.getName() : null,
+                        i.getPriceAtOrder(),
+                        i.getQuantity(),
+                        i.getStatus().name()
+                ));
+            }
+            return views;
+        } catch (SQLException e) {
+            throw new Exception("Lỗi hệ thống: Không thể tải danh sách món ăn.");
         }
     }
 }

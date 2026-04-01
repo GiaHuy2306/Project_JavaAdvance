@@ -5,6 +5,7 @@ import dto.TableChoice;
 import model.MenuItem;
 import model.Order;
 import model.Table;
+import model.enums.MenuStatus;
 import model.enums.TableStatus;
 import service.IMenuItemService;
 import service.IOrderItemService;
@@ -124,27 +125,27 @@ public class CustomerUI {
                 order = orderService.getActiveByTableAndCustomer(choice.getTableId(), userId);
             }
 
-            List<MenuItem> menuList = menuItemService.findAll();
+            List<MenuItem> menuList = menuItemService.findAvailableMenus();
             if (menuList.isEmpty()) {
-                System.out.println("Không có món nào!");
+                System.out.println("Xin lỗi!, hiện nhà hàng đã hết món này");
                 return;
             }
 
-            String separator = "+-------+---------------------------+-----------------+------------+";
+            String separator = "+-------+---------------------------+-----------------+-------------+";
 
             System.out.println("\n" + separator);
             System.out.println("|                               MENU                                |");
             System.out.println(separator);
 
-            System.out.printf("| %-5s | %-25s | %-15s | %-11s |%n", "STT", "Tên món", "Giá", "Kho (Stock)");
+            System.out.printf("| %-5s | %-25s | %-15s | %-12s |%n", "STT", "Tên món", "Giá", "Kho (Stock)");
             System.out.println(separator);
 
             DecimalFormat df = new DecimalFormat("#,### VNĐ");
             for (int i = 0; i < menuList.size(); i++) {
                 MenuItem m = menuList.get(i);
-                String stockInfo = "Còn " + m.getStock();
+                String stockInfo = (m.getStock() > 0) ? "Còn " + m.getStock() : "HẾT HÀNG";
 
-                System.out.printf("| %-5d | %-25s | %-15s | %-11s |%n",
+                System.out.printf("| %-5d | %-25s | %-15s | %-12s |%n",
                         i + 1,
                         m.getName(),
                         df.format(m.getPrice()),
@@ -153,13 +154,19 @@ public class CustomerUI {
             System.out.println(separator);
 
             int menuChoice;
+            MenuItem selectedItem = null;
             while (true) {
                 menuChoice = InputMethod.inputInt("Chọn món: ");
-                if (menuChoice >= 1 && menuChoice <= menuList.size()) break;
-                System.out.println("Lựa chọn không hợp lệ!");
+                if (menuChoice >= 1 && menuChoice <= menuList.size()) {
+                    if (selectedItem.getStock() <= 0 || selectedItem.getStatus() == MenuStatus.OUT_OF_STOCK) {
+                        System.out.println("Món này đã hết hàng, vui lòng chọn món khác!");
+                        continue;
+                    }
+                    break;
+                }else {
+                    System.out.println("Lựa chọn không hợp lệ!");
+                }
             }
-
-            MenuItem selectedItem = menuList.get(menuChoice - 1);
 
             int quantity;
             while (true) {
@@ -254,7 +261,7 @@ public class CustomerUI {
             String separator = "+-------+----------------------+-----------------+";
 
             System.out.println("\n" + separator);
-            System.out.println("|                  BÀN CỦA BẠN                    |");
+            System.out.println("|                  BÀN CỦA BẠN                   |");
             System.out.println(separator);
 
             System.out.printf("| %-5s | %-20s | %-16s |%n", "STT", "Tên bàn", "Trạng thái Order");

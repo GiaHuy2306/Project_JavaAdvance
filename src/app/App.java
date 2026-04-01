@@ -15,7 +15,7 @@ public class App {
 
             if (user == null) {
                 System.out.println("Thoát hệ thống.");
-                break;  // chỉ break vòng lặp, không return
+                break;
             }
 
             boolean backToMainMenu = false;
@@ -33,7 +33,7 @@ public class App {
             }
 
             if (backToMainMenu) {
-                System.out.println("Quay về menu chính...");
+//                System.out.println("Quay về menu chính...");
                 continue;
             }
         }

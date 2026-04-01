@@ -90,7 +90,6 @@ public class UserService implements IUserService {
                 }
             }
 
-            // 3. Vượt qua mọi bài kiểm tra thì mới tiến hành khóa
             boolean isSuccess = dao.updateStatus(conn, userId, UserStatus.BANNED);
 
             if (!isSuccess) {

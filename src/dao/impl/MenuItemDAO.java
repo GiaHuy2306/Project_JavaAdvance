@@ -104,11 +104,14 @@ public class MenuItemDAO implements IMenuItemDAO {
 
     @Override
     public boolean updateStock(Connection conn, int menuItemId, int newStock) throws SQLException {
-        String sql = "UPDATE menu SET stock = ? WHERE menu_id = ?";
+        String newStatus = (newStock > 0) ? MenuStatus.AVAILABLE.name() : MenuStatus.OUT_OF_STOCK.name();
+
+        String sql = "UPDATE menu SET stock = ?, status = ? WHERE menu_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, newStock);
-            ps.setInt(2, menuItemId);
-            int updated = ps.executeUpdate();
+            ps.setString(2, newStatus);
+            ps.setInt(3, menuItemId);
+            int updated = ps.executeUpdate();;
             return updated > 0;
         }
     }

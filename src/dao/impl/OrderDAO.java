@@ -4,7 +4,6 @@ import dao.IOrderDAO;
 import model.Order;
 import model.enums.OrderStatus;
 import model.enums.TableStatus;
-import utils.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -69,6 +68,20 @@ public class OrderDAO implements IOrderDAO {
             while(rs.next()) list.add(map(rs));
         }
         return list;
+    }
+
+    @Override
+    public Order findActiveByTable(Connection conn, int tableId) throws SQLException {
+        String sql = "SELECT * FROM orders WHERE table_id = ? AND status != ? ORDER BY created_at DESC LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tableId);
+            ps.setString(2, OrderStatus.DONE.name());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) return map(rs);
+            }
+        }
+        return null;
     }
 
     @Override

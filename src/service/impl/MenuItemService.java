@@ -9,6 +9,7 @@ import utils.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MenuItemService implements IMenuItemService {
@@ -17,13 +18,17 @@ public class MenuItemService implements IMenuItemService {
     public void addMenu(String name, FoodType foodType, double price, int stock) throws Exception {
         if (name.isEmpty()) throw new Exception("Tên menu item không được trống");
         if (price <= 0) throw new Exception("Giá menu item phải lớn hơn 0");
-        if (stock < 0) throw new Exception("Số lượng menu item phải lớn hơn 0");
+        if (stock < 0) throw new Exception("Số lượng menu item không được âm 0");
 
         MenuStatus status = (stock > 0) ? MenuStatus.AVAILABLE : MenuStatus.OUT_OF_STOCK;
 
-        MenuItem item = new MenuItem(0,name, foodType, price, stock, status);
+        MenuItem item = new MenuItem(0,name.trim(), foodType, price, stock, status);
 
-        dao.insert(item);
+        try {
+            dao.insert(item);
+        } catch (SQLException e) {
+            throw new Exception("Lỗi hệ thống: Không thể thêm món ăn mới vào CSDL (" + e.getMessage() + ")");
+        }
     }
 
     @Override
@@ -56,6 +61,8 @@ public class MenuItemService implements IMenuItemService {
                 } else {
                     existing.setStatus(MenuStatus.OUT_OF_STOCK);
                 }
+
+                existing.setStatus(existing.getStock() > 0 ? MenuStatus.AVAILABLE : MenuStatus.OUT_OF_STOCK);
 
                 dao.update(conn, existing);
                 conn.commit();
@@ -108,6 +115,23 @@ public class MenuItemService implements IMenuItemService {
             return result;
         } catch (SQLException e) {
             throw new Exception("Lỗi hệ thống: Không thể lọc món ăn theo loại!");
+        }
+    }
+
+    @Override
+    public List<MenuItem> findAvailableMenus() throws Exception {
+        try (Connection conn = DBConnection.getConnection()) {
+            List<MenuItem> allMenus = dao.findAll();
+            List<MenuItem> availableMenus = new ArrayList<>();
+
+            for (MenuItem item : allMenus) {
+                if (item.getStatus() == MenuStatus.AVAILABLE && item.getStock() > 0) {
+                    availableMenus.add(item);
+                }
+            }
+            return availableMenus;
+        } catch (SQLException e) {
+            throw new Exception("Lỗi hệ thống khi tải Menu.");
         }
     }
 

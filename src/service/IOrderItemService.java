@@ -10,4 +10,8 @@ public interface IOrderItemService {
     void cancelItem(int customerId, int orderItemId) throws Exception;
     List<ChefItemView> getChefPendingItems() throws Exception;
     void advanceItemStatus(int orderItemId) throws Exception;
+
+    void approveItem(int orderItemId) throws Exception;
+
+    List<OrderItemView> getByTableForManager(int tableId) throws Exception;
 }

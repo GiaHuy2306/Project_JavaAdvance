@@ -17,5 +17,7 @@ public interface IMenuItemService {
 
     List<MenuItem> findByType(FoodType foodType) throws Exception;
 
+    List<MenuItem> findAvailableMenus() throws Exception;
+
     List<MenuItem> findAll() throws Exception;
 }
